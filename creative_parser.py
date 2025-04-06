@@ -6,12 +6,14 @@ import time
 
 # === Авторизация Google Sheets ===
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-CREDS = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", SCOPE)
+CREDS = ServiceAccountCredentials.from_json_keyfile_name(
+    "creativeparser-455918-93ecc38ccd1c.json", SCOPE
+)
 client = gspread.authorize(CREDS)
 sheet = client.open("CreativeParser").sheet1
 
 # Получаем уже добавленные ссылки, чтобы избежать дублей
-existing_links = [row[1] for row in sheet.get_all_values()[1:]]  # пропускаем заголовки
+existing_links = [row[1] for row in sheet.get_all_values()[1:]]
 
 # === Настройки парсинга ===
 BASE_URL = "https://www.adsoftheworld.com"
@@ -48,7 +50,7 @@ while parsed_count < TARGET_COUNT:
             print(f"Пропущено (дубликат): {title}")
             continue
 
-        # Парсим сам кейс
+        # Парсим страницу кейса
         print(f"Парсим кейс: {title}")
         case_page = requests.get(link, headers=HEADERS)
         case_soup = BeautifulSoup(case_page.text, "html.parser")
@@ -67,7 +69,7 @@ while parsed_count < TARGET_COUNT:
 
         new_cases.append([title, link, category, tags, description, date])
         parsed_count += 1
-        time.sleep(1.2)  # пауза, чтобы не спамить сервер
+        time.sleep(1.2)  # чтобы не спамить сервер
 
     page += 1
 
@@ -77,4 +79,3 @@ if new_cases:
     print(f"✅ Добавлено {len(new_cases)} новых кейсов в Google Sheets")
 else:
     print("🔍 Новых кейсов не найдено. Всё уже есть.")
-
